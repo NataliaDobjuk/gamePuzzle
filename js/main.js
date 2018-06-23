@@ -5,6 +5,12 @@ var canvas = null;
 var context = null;
 //
 var img = null;
+var imageWidth = 0;
+var imageHeight = 0;
+//
+var sourcePieceWidth = 0;
+var sourcePieceHeight = 0;
+
 var pieces = [];
 var puzzleWidth = 0;
 var puzzleHeight = 0;
@@ -22,12 +28,16 @@ function initImage() {
     img = new Image();
     img.addEventListener('load',initScale);
     
-    img.src = 'media/picture.jpg';
+    img.src = 'media/picture1.jpeg';
+    imageWidth = img.width;
+    imageHeight = img.height;
     //img.setAttribute("width","1000");
     //img.setAttribute("height","600");
 }
 function initScale() {
-    //resizeImage();
+    sourcePieceWidth = Math.floor(img.width / NUMBER_OF_PIECES );
+    sourcePieceHeight = Math.floor(img.height / NUMBER_OF_PIECES );
+    resizeImage();
     pieceWidth = Math.floor(img.width / NUMBER_OF_PIECES );
     pieceHeight = Math.floor(img.height / NUMBER_OF_PIECES );
     puzzleWidth = pieceWidth * NUMBER_OF_PIECES;
@@ -67,10 +77,10 @@ function createPuzles() {
         piece.sx = xPos;
         piece.sy = yPos;
         pieces.push(piece);
-        xPos += pieceWidth;
-        if(xPos >= puzzleWidth){
+        xPos += sourcePieceWidth;
+        if(xPos >= sourcePieceWidth*NUMBER_OF_PIECES){
             xPos = 0;
-            yPos += pieceHeight;
+            yPos += sourcePieceHeight;
         }
     }
     document.onmousedown = shufflePuzzle;
@@ -86,7 +96,7 @@ function shufflePuzzle(){
         piece = pieces[i];
         piece.xPos = xPos;
         piece.yPos = yPos;
-        context.drawImage(img, piece.sx, piece.sy, pieceWidth, pieceHeight, xPos, yPos, pieceWidth, pieceHeight);
+        context.drawImage(img, piece.sx, piece.sy, sourcePieceWidth, sourcePieceHeight, xPos, yPos, pieceWidth, pieceHeight);
         context.strokeRect(xPos, yPos, pieceWidth,pieceHeight);
         xPos += pieceWidth;
         if(xPos >= puzzleWidth){
@@ -107,7 +117,7 @@ function onPuzzleClick(e){
         context.clearRect(currentPiece.xPos, currentPiece.yPos, pieceWidth, pieceHeight);
         context.save();
         context.globalAlpha = .9;
-        context.drawImage(img, currentPiece.sx, currentPiece.sy, pieceWidth, pieceHeight, mouse.x - (pieceWidth / 2), mouse.y - (pieceHeight / 2), pieceWidth, pieceHeight);
+        context.drawImage(img, currentPiece.sx, currentPiece.sy, sourcePieceWidth, sourcePieceHeight, mouse.x - (pieceWidth / 2), mouse.y - (pieceHeight / 2), pieceWidth, pieceHeight);
         context.restore();
         document.onmousemove = updatePuzzle;
         document.onmouseup = pieceDropped;
@@ -149,7 +159,7 @@ function updatePuzzle(e){
         if(piece == currentPiece){
             continue;
         }
-        context.drawImage(img, piece.sx, piece.sy, pieceWidth, pieceHeight, piece.xPos, piece.yPos, pieceWidth, pieceHeight);
+        context.drawImage(img, piece.sx, piece.sy, sourcePieceWidth, sourcePieceHeight, piece.xPos, piece.yPos, pieceWidth, pieceHeight);
         context.strokeRect(piece.xPos, piece.yPos, pieceWidth,pieceHeight);
         if(currentDropPiece == null){
             if(mouse.x < piece.xPos || mouse.x > (piece.xPos + pieceWidth) || mouse.y < piece.yPos || mouse.y > (piece.yPos + pieceHeight)){
@@ -167,7 +177,7 @@ function updatePuzzle(e){
     }
     context.save();
     context.globalAlpha = .6;
-    context.drawImage(img, currentPiece.sx, currentPiece.sy, pieceWidth, pieceHeight, mouse.x - (pieceWidth / 2), mouse.y - (pieceHeight / 2), pieceWidth, pieceHeight);
+    context.drawImage(img, currentPiece.sx, currentPiece.sy, sourcePieceWidth, sourcePieceHeight, mouse.x - (pieceWidth / 2), mouse.y - (pieceHeight / 2), pieceWidth, pieceHeight);
     context.restore();
     context.strokeRect( mouse.x - (pieceWidth / 2), mouse.y - (pieceHeight / 2), pieceWidth,pieceHeight);
 }
@@ -192,9 +202,10 @@ function resetPuzzleAndCheckWin(){
     var piece;
     for(i = 0;i < pieces.length;i++){
         piece = pieces[i];
-        context.drawImage(img, piece.sx, piece.sy, pieceWidth, pieceHeight, piece.xPos, piece.yPos, pieceWidth, pieceHeight);
+        context.drawImage(img, piece.sx, piece.sy, sourcePieceWidth, sourcePieceHeight, piece.xPos, piece.yPos, pieceWidth, pieceHeight);
         context.strokeRect(piece.xPos, piece.yPos, pieceWidth, pieceHeight);
-        if(piece.xPos != piece.sx || piece.yPos != piece.sy){
+        if( (piece.xPos / pieceWidth != piece.sx / sourcePieceWidth) || 
+            (piece.yPos / pieceHeight != piece.sy / sourcePieceHeight) ) {
             gameWin = false;
         }
     }
@@ -207,5 +218,6 @@ function gameOver(){
     document.onmousedown = null;
     document.onmousemove = null;
     document.onmouseup = null;
+    context.clearRect(0,0,puzzleWidth,puzzleHeight);
     initPuzzle();
 }
