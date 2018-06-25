@@ -1,0 +1,91 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-size: 16px;
+    background: #FAF2D6;
+    color: #302E2D;
+  }
+  header {
+    padding: 30px 60px;
+    background: #80C8A0;
+    text-align: center;
+    font-size: 2.5rem;
+    color: white;
+  }
+  .container {
+    padding: 30px;
+    background: #FAF2D6;
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+  }
+  .main-content {
+    float: left;
+    width: calc(100% - 330px);
+    margin: 10px;
+    
+    /*background: #C9CCC8;*/
+  }
+  aside {
+    float: right;
+    width: 300px;
+    
+  }
+
+  .main-content:after, aside:after {
+    content: "";
+    position: absolute;
+    height: 100%;
+  }
+  .main-content:after {
+    left: 30px;
+    right: 360px;
+    /*background: #C9CCC8;*/
+  }
+  aside:after {
+    right: 30px;
+    width: 300px;
+    /*background: #EC5A45;*/
+  }
+  .main-content div, aside  div {
+    padding: 30px 30px 0 30px;
+  }
+  footer {
+    margin-top: 30px;
+    padding: 30px 60px;
+    background: #80C8A0;
+  }
+  .container:after {
+    content: "";
+    display: table;
+    clear:  both;
+  }
+  /*My styles*/
+  
+select {
+  margin: 0px 0px 10px 0px;
+}
+button {
+  width: 250px;
+  
+  display: block;
+  background: #80C8A0;
+  margin: 10px;
+  padding: 5px;
+  color: white;
+}
+span {
+  font-size: 1.1rem;
+  margin-right: 4px;
+  
+}
+#canvas {
+  background-image: url("../media/picture1.jpeg");
+  background-repeat: no-repeat;
+  background-position: center center;
+  background-size: cover;
+  width: 600px;
+  height: auto;
+  
+  
+}

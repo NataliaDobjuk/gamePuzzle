@@ -1,13 +1,35 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <meta charset="utf-8" />
-    <title>Puzzle Game</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" type="text/css" media="screen" href="css/main.css" />
-    <script src="js/main.js"></script>
-</head>
-<body onload="initialization()">
-    <canvas id="canvas"></canvas>
-</body>
+    <head>
+        <meta charset="utf-8" />
+        <title>Puzzle Game</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" type="text/css" media="screen" href="css/main.css" />
+        <script src="js/main.js"></script>
+    </head>
+    <body onload="initialization()">
+        <header>Puzzle game</header>
+        <div class="container">
+            <div class="main-content">
+                <div class="canvas-area">
+                    <canvas id="canvas">
+                        <!--<img src="media/picture1.jpeg">-->
+                    </canvas>
+                </div>
+            </div>
+            <aside>
+                <div>
+                    <span clas="parameters">Choose the complexity</span>
+                    <select id="select">
+                        <option>4x4</option>
+                        <option>8x8</option>
+                        <option>10x10</option>
+                    </select>
+                    <button id="btn" onclick="startGame()">Start</button>
+                   <!-- <button onclick="complete()">auto</button>-->
+            </div>          
+            </aside>
+        </div>
+        <footer></footer> 
+    </body>
 </html>

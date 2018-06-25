@@ -1,10 +1,14 @@
-const NUMBER_OF_PIECES = 4;
+//const NUMBER_OF_PIECES = 4;
+var NUMBER_OF_PIECES = 8;
 const PUZZLE_HOVER_TINT = '#009900';
+
 //
 var canvas = null;
 var context = null;
 //
 var img = null;
+var sourceImageWidth = 0;
+var sourceImageHeight = 0;
 var imageWidth = 0;
 var imageHeight = 0;
 //
@@ -26,17 +30,19 @@ function initialization() {
 }
 function initImage() {
     img = new Image();
-    img.addEventListener('load',initScale);
-    
+    img.addEventListener('load',enableButton);
     img.src = 'media/picture1.jpeg';
-    imageWidth = img.width;
-    imageHeight = img.height;
-    //img.setAttribute("width","1000");
-    //img.setAttribute("height","600");
+    sourceImageWidth = imageWidth = img.width;
+    sourceImageHeight = imageHeight = img.height;
+    
+}
+function enableButton() {
+    var btn = document.getElementById("btn");
+    btn.setAttribute("enabled","true");
 }
 function initScale() {
-    sourcePieceWidth = Math.floor(img.width / NUMBER_OF_PIECES );
-    sourcePieceHeight = Math.floor(img.height / NUMBER_OF_PIECES );
+    sourcePieceWidth = Math.floor(imageWidth / NUMBER_OF_PIECES );
+    sourcePieceHeight = Math.floor(imageHeight / NUMBER_OF_PIECES );
     resizeImage();
     pieceWidth = Math.floor(img.width / NUMBER_OF_PIECES );
     pieceHeight = Math.floor(img.height / NUMBER_OF_PIECES );
@@ -46,10 +52,17 @@ function initScale() {
     initPuzzle();
 }
 function initCanvas() {
-    canvas = document.getElementById('canvas');
-    context = canvas.getContext('2d');
+    if(!canvas){
+
+        canvas = document.getElementById('canvas');
+        context = canvas.getContext('2d');
+        
+        canvas.style.background = 'none';
+    }
+    
     canvas.width = puzzleWidth;
     canvas.height = puzzleHeight;
+    context.clearRect(0,0,puzzleWidth,puzzleHeight);
     //canvas.width = 800;
     //canvas.height = 500;
     
@@ -62,12 +75,13 @@ function resizeImage() {
     }
 }
 function initPuzzle() {
-    
+    context.clearRect(0,0,puzzleWidth,puzzleHeight);
     context.drawImage(img, 0, 0, puzzleWidth, puzzleHeight);
     //, 0, 0, puzzleWidth, puzzleHeight);
     createPuzles();
 }
 function createPuzles() {
+    pieces =[];
     var i;
     var piece;
     var xPos = 0;
@@ -83,7 +97,7 @@ function createPuzles() {
             yPos += sourcePieceHeight;
         }
     }
-    document.onmousedown = shufflePuzzle;
+    //document.onmousedown = shufflePuzzle;
 }
 function shufflePuzzle(){
     pieces = shuffleArray(pieces);
@@ -111,7 +125,7 @@ function shuffleArray(o){
     return o;
 }
 function onPuzzleClick(e){
-    setMousePosition(e);
+    setMousePos(e);
     currentPiece = checkPieceClicked();
     if(currentPiece != null){
         context.clearRect(currentPiece.xPos, currentPiece.yPos, pieceWidth, pieceHeight);
@@ -133,6 +147,13 @@ function setMousePosition(e){
         mouse.y = e.offsetY - canvas.offsetTop;
     }
 }
+function setMousePos(e){
+    var rect = canvas.getBoundingClientRect();
+    mouse.x = e.clientX - rect.left;
+    mouse.y = e.clientY - rect.top;
+}
+
+
 function checkPieceClicked(){
     var i;
     var piece;
@@ -186,13 +207,21 @@ function pieceDropped(e){
     document.onmousemove = null;
     document.onmouseup = null;
     if(currentDropPiece != null){
-        var tmp = {xPos:currentPiece.xPos,yPos:currentPiece.yPos};
+        /*var tmp = {xPos:currentPiece.xPos,yPos:currentPiece.yPos};
         currentPiece.xPos = currentDropPiece.xPos;
         currentPiece.yPos = currentDropPiece.yPos;
         currentDropPiece.xPos = tmp.xPos;
-        currentDropPiece.yPos = tmp.yPos;
+        currentDropPiece.yPos = tmp.yPos;*/
+        swapPieces(currentPiece,currentDropPiece);
     }
     resetPuzzleAndCheckWin();
+}
+function swapPieces(p1,p2) {
+    var tmp = {xPos:p1.xPos,yPos:p1.yPos};
+        p1.xPos = p2.xPos;
+        p1.yPos = p2.yPos;
+        p2.xPos = tmp.xPos;
+        p2.yPos = tmp.yPos;
 }
 //resetPuzzle and check win
 function resetPuzzleAndCheckWin(){
@@ -220,4 +249,74 @@ function gameOver(){
     document.onmouseup = null;
     context.clearRect(0,0,puzzleWidth,puzzleHeight);
     initPuzzle();
+}
+
+
+//unfinished function
+function auto(){
+    pieces.sort((a,b) => {
+        if(a.sy - b.sy != 0) {
+            return a.sy - b.sy;
+        } else {
+            return a.sx - b.sx;
+        }
+    })
+    resetPuzzleAndCheckWin();
+}
+//unfinished function
+function complete() {
+    var piece;
+    for( var i =0, len = pieces.length; i< len - 1; i++) {
+        for(var j = 0; j < len - i - 1; j++) {
+            if(pieces[j].sy - pieces[j+1].sy > 0){
+                //continue;
+            } else {
+                if(pieces[j].sx - pieces[j+1].sx < 0) {
+                    continue;
+                }
+            }
+                setTint(pieces[j]);
+                setTint(pieces[j+1]);
+                swapPieces(pieces[j],pieces[j+1]);
+                setTimeout(resetPuzzleAndCheckWin,5000);
+        }
+    }
+}
+function drawPuzzle() {
+    context.clearRect(0,0,puzzleWidth,puzzleHeight);
+    for(i = 0;i < pieces.length;i++){
+        piece = pieces[i];
+        context.drawImage(img, piece.sx, piece.sy, sourcePieceWidth, sourcePieceHeight, piece.xPos, piece.yPos, pieceWidth, pieceHeight);
+        context.strokeRect(piece.xPos, piece.yPos, pieceWidth, pieceHeight);
+    }
+}
+function setTint(piece){
+    context.save();
+    context.globalAlpha = .4;
+    context.fillStyle = PUZZLE_HOVER_TINT;
+    context.fillRect(piece.xPos,piece.yPos,pieceWidth, pieceHeight);
+    context.restore();
+}
+function onSelect() {
+    var select = document.getElementById("select");
+    var option = select.options[select.selectedIndex].text;
+    switch(option) {
+        case "4x4" :
+            NUMBER_OF_PIECES = 4;
+            break;
+        case "8x8" :
+            NUMBER_OF_PIECES = 8;
+            break;
+        case "10x10":
+            NUMBER_OF_PIECES = 10;
+            break;
+    }
+    console.log('s'+option+'s');
+
+}
+function startGame() {
+    
+    onSelect();
+    initScale();
+    shufflePuzzle();
 }
